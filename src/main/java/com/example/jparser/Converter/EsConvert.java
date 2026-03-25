@@ -18,7 +18,7 @@ public Object visitLogicalExpr(ExprParser.LogicalExprContext c) {
     String type = c.op.getText().equalsIgnoreCase("AND") ? "must" : "should";
     List<Object> conditions = new ArrayList<>();
 
-    //Extract conditions from children
+    //Extract conditions from tree children
     addConditions(c.left, type, conditions);
     addConditions(c.right, type, conditions);
 

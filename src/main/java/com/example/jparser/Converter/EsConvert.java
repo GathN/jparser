@@ -15,10 +15,9 @@ public class EsConvert extends ExprBaseVisitor<Object> {
 
     @Override
 public Object visitLogicalExpr(ExprParser.LogicalExprContext c) {
-    String type = c.op.getText().equalsIgnoreCase("AND") ? "must" : "should";
+    String type = c.op.getText().equalsIgnoreCase("AND") ? "filter" : "should";
     List<Object> conditions = new ArrayList<>();
 
-    //Extract conditions from tree children
     addConditions(c.left, type, conditions);
     addConditions(c.right, type, conditions);
 
@@ -45,7 +44,7 @@ private void addConditions(ParseTree tree, String currentType, List<Object> coll
     @Override
     public Object visitInclComparison(ExprParser.InclComparisonContext c) {
         String cleanVal = "*" + c.right.getText().replace("'", "") + "*";
-        return buildEsMap(c.left.getText(), "=", cleanVal);
+        return buildEsMap(c.left.getText(), "IN", cleanVal);
     }
 
     @Override
@@ -90,7 +89,9 @@ private void addConditions(ParseTree tree, String currentType, List<Object> coll
         if ("=".equals(op)) {
             return Map.of("term", Map.of(field, value));
         }
-        
+        if ("IN".equals(op)) {
+            return Map.of("wildcard", Map.of(field, value));
+        }
         // Handle range operators
         String esOp = switch (op) {
             case ">" -> "gt";

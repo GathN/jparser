@@ -26,6 +26,7 @@ public class QueryService {
         queryRequest.setQuery(query);
         queryRequest.setQuerySql(queryConvertService.convertToSql(query));
         queryRequest.setQueryEs(queryConvertService.convertToEs(query));
+        queryRequest.setQueryEsMap(queryConvertService.convertToEsJSON(query));
         Query savedQuery = queryRepository.save(queryRequest);
         return queryMapper.toRequest(savedQuery);
     }

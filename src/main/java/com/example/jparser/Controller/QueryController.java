@@ -1,9 +1,13 @@
 package com.example.jparser.Controller;
 
+import com.example.jparser.Service.QueryExecutionService;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.example.jparser.DTO.CombinedResponse;
 import com.example.jparser.DTO.QueryRequest;
+import com.example.jparser.Entity.Product;
 import com.example.jparser.Service.QueryService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -24,7 +28,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 @RequiredArgsConstructor
 @RequestMapping("query")
 public class QueryController {
+        private final QueryExecutionService queryExecutionService;
         private final QueryService queryService;
+
         
         @PostMapping("create")
         public ResponseEntity<QueryRequest> create(@RequestBody QueryRequest query) {
@@ -42,8 +48,16 @@ public class QueryController {
             List<QueryRequest> res = queryService.getQueryByTitle(title);
             return ResponseEntity.ok(res);
         }
+
+        //this is unused
+        @PostMapping("createAndExec")
+        public ResponseEntity<CombinedResponse> createExecute(@RequestBody QueryRequest query) throws JsonProcessingException {
+            QueryRequest req = queryService.createQuery(query.title(), query.query());
+            List<Product> res = queryExecutionService.executeQuery(req.queryEsMap());
+            return ResponseEntity.ok(new CombinedResponse(req, res));
+        }
         
-           @DeleteMapping("delete/{id}")
+        @DeleteMapping("delete/{id}")
         public ResponseEntity<Void> deleteNote(@PathVariable Long id) {
             queryService.deleteQuery(id);
             return ResponseEntity.noContent().build();

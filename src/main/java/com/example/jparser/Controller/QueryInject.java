@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
-@RequestMapping("/api/")
+@RequestMapping("api")
 @RequiredArgsConstructor
 public class QueryInject {
     private final QueryExecutionService queryExecutionService;

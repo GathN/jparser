@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Title</title>
+    <script>
+        async function loadQueries(){
+            try {
+                const resp = await fetch("query/get");
+                const items = await resp.json();
+
+                const results = document.getElementById("queries-list");
+                results.innerHTML = items.map(p=>`
+                    <li style="padding:10px; margin: 10px; background-color:#BFC9D1; color:#25343F; border-radius:10px;">
+                        <strong>${p.title}</strong> 
+                        <p>${p.query}</p>
+                        <p>SQL : ${p.querySql}</p>
+                        <p>ES  : $${p.queryEs}</p>
+                    </li>`
+                ).join('');
+            } catch(e) {
+                console.error("Load failed:", e);
+                results.innerHTML = `<li style="color:red">Error: ${e.message}</li>`;
+            }
+        }
+
+        async function createQuery() {
+            const title = document.getElementById("title").value;
+            const query = document.getElementById("query").value;
+            
+            const data = {
+                title: title,
+                query: query,
+            }
+            try {
+                const res = await fetch('query/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type' : 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if(!res.ok){
+                    throw new Error(`Error ${res.statusText}`);
+                }else{
+                    loadQueries();
+                }
+
+            }catch(e){
+                console.error("Create failed:", e);
+                results.innerHTML = `<li style="color:red">Error: ${e.message}</li>`;
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            loadQueries();
+        });
+        
+    </script>
+</head>
+<body>
+    <div>
+        <a href="index.html">search</a>
+        <h1>Create new query</h1>
+        <form>
+            <input type="text" id="title" placeholder="query title"></input>
+            <textarea id="query" placeholder="query content"></textarea>
+        </form>
+        <button onclick="createQuery()">Create</button>
+    </div>
+    <div style="display: flex;" id="results">
+        <ul id="queries-list" style="list-style: none; padding: 0; margin: 0;">
+
+
+        </ul>
+
+    </div>
+</body>
+</html>

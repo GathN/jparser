@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Search</title>
+    <script>
+        async function executeSearch(){
+            event.preventDefault();
+            const query = document.getElementById('search-bar').value;
+            console.log(query);
+            const result = document.getElementById('results');
+
+            try {
+                const res = await fetch('api/execute', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type' : 'application/json'
+                    },
+                    body: query
+                });
+
+                if(!res.ok){
+                    throw new Error(`Error ${res.statusText}`);
+                }
+
+                const products = await res.json();
+                const list = document.getElementById('products-list');
+
+                list.innerHTML = products.map(p=>`
+                    <li style="padding:10px; background-color:#BFC9D1; color:#25343F; border-radius:10px;">
+                        <strong>${p.name}</strong> 
+                        <p>${p.category}</p>
+                        <p>${p.description}</p>
+                        <span>$${p.price}</span>
+                    </li>`
+                ).join('');
+            }
+            catch(e) {
+                console.error("Search failed:", e);
+                results.innerHTML = `<li style="color:red">Error: ${e.message}</li>`;
+        }
+
+        } 
+    </script>
+</head>
+<body>
+    <a href="create.html">create</a>
+    <div>
+        <h1>Search by Query</h1>
+        <form>
+            <input type="text" id="search-bar"></input>
+        </form>
+        <button onclick="executeSearch()">Go!</button>
+    </div>
+    <div style="display: flex;" id="results">
+        <ul id="products-list" style="list-style: none; padding: 0; margin: 0;"></ul>
+
+    </div>
+</body>
+</html>
